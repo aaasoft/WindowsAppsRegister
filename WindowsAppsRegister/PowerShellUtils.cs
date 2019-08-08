@@ -41,7 +41,7 @@ namespace WindowsAppsRegister
             return result.FirstOrDefault()?.BaseObject as XmlDocument;
         }
 
-        public static async Task<bool> RegisterAppxPackageAsync(string installLocation)
+        public static async Task<bool> AddAppxPackageAsync(string installLocation)
         {
             await RunPowerShellScriptAsync(
                 $"Add-AppxPackage -register \"{installLocation}\\appxmanifest.xml\" -disabledevelopmentmode"
@@ -49,7 +49,7 @@ namespace WindowsAppsRegister
             return await GetAppxPackageRegistered(Path.GetFileName(installLocation));
         }
 
-        public static async Task<bool> UnregisterAppxPackageAsync(string packageId)
+        public static async Task<bool> RemoveAppxPackageAsync(string packageId)
         {
             await RunPowerShellScriptAsync(
                 $"Remove-AppxPackage -package \"{packageId}\""

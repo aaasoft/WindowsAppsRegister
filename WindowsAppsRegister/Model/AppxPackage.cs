@@ -26,11 +26,11 @@ namespace WindowsAppsRegister.Model
         public bool IsResourcePackage { get; set; }
         public string Logo { get; set; }
         public string LogoFullPath => Logo == null ? null : Path.Combine(InstallLocation, Logo);
-        public bool IsRegistered { get; set; }
+        public bool IsAdded { get; set; }
 
         private bool isWorking = false;
-        public DelegateCommand RegisterCommand { get; set; }
-        public DelegateCommand UnregisterCommand { get; set; }
+        public DelegateCommand AddCommand { get; set; }
+        public DelegateCommand RemoveCommand { get; set; }
 
         public static string[] GetDirs()
         {
@@ -39,15 +39,15 @@ namespace WindowsAppsRegister.Model
 
         public AppxPackage()
         {
-            RegisterCommand = new DelegateCommand()
+            AddCommand = new DelegateCommand()
             {
-                ExecuteCommand = execute_RegisterCommand,
-                CanExecuteCommand = _ => !IsRegistered && !isWorking
+                ExecuteCommand = execute_AddCommand,
+                CanExecuteCommand = _ => !IsAdded && !isWorking
             };
-            UnregisterCommand = new DelegateCommand()
+            RemoveCommand = new DelegateCommand()
             {
-                ExecuteCommand = execute_UnregisterCommand,
-                CanExecuteCommand = _ => IsRegistered && !isWorking
+                ExecuteCommand = execute_RemoveCommand,
+                CanExecuteCommand = _ => IsAdded && !isWorking
             };
         }
 
@@ -93,39 +93,39 @@ namespace WindowsAppsRegister.Model
 
         public async Task RefreshRegisterStatusAsync()
         {
-            IsRegistered = await PowerShellUtils.GetAppxPackageRegistered(Id);
+            IsAdded = await PowerShellUtils.GetAppxPackageRegistered(Id);
         }
 
-        private async void execute_UnregisterCommand(object obj)
+        private async void execute_RemoveCommand(object obj)
         {
             isWorking = true;
-            RegisterCommand.RaiseCanExecuteChanged();
-            UnregisterCommand.RaiseCanExecuteChanged();
-            var result = await PowerShellUtils.UnregisterAppxPackageAsync(Id);
+            AddCommand.RaiseCanExecuteChanged();
+            RemoveCommand.RaiseCanExecuteChanged();
+            var result = await PowerShellUtils.RemoveAppxPackageAsync(Id);
             await RefreshRegisterStatusAsync();
             if (result)
-                MessageBox.Show("反注册成功！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("移除成功！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                MessageBox.Show("反注册失败！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("移除失败！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Warning);
             isWorking = false;
-            RegisterCommand.RaiseCanExecuteChanged();
-            UnregisterCommand.RaiseCanExecuteChanged();
+            AddCommand.RaiseCanExecuteChanged();
+            RemoveCommand.RaiseCanExecuteChanged();
         }
 
-        private async void execute_RegisterCommand(object obj)
+        private async void execute_AddCommand(object obj)
         {
             isWorking = true;
-            RegisterCommand.RaiseCanExecuteChanged();
-            UnregisterCommand.RaiseCanExecuteChanged();
-            var result = await PowerShellUtils.RegisterAppxPackageAsync(InstallLocation);
+            AddCommand.RaiseCanExecuteChanged();
+            RemoveCommand.RaiseCanExecuteChanged();
+            var result = await PowerShellUtils.AddAppxPackageAsync(InstallLocation);
             await RefreshRegisterStatusAsync();
             if (result)
-                MessageBox.Show("注册成功！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("添加成功！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                MessageBox.Show("注册失败！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("添加失败！", nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Warning);
             isWorking = false;
-            RegisterCommand.RaiseCanExecuteChanged();
-            UnregisterCommand.RaiseCanExecuteChanged();
+            AddCommand.RaiseCanExecuteChanged();
+            RemoveCommand.RaiseCanExecuteChanged();
         }
     }
 }
