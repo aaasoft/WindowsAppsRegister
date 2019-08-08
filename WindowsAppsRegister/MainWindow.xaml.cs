@@ -34,7 +34,17 @@ namespace WindowsAppsRegister
         {
             borderLoading.Visibility = Visibility.Visible;
             ViewModel.AppxPackageCollection.Clear();
-            var dirs = AppxPackage.GetDirs();
+            string[] dirs = null;
+            try
+            {
+                dirs = AppxPackage.GetDirs();
+            }
+            catch (Exception ex)
+            {
+                borderLoading.Visibility = Visibility.Collapsed;
+                MessageBox.Show(ex.Message, nameof(WindowsAppsRegister), MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             ViewModel.ProgressMaximum = dirs.Length;
             ViewModel.ProgressValue = 0;
 
